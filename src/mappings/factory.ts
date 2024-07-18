@@ -1,4 +1,4 @@
-import { BigInt, log } from '@graphprotocol/graph-ts'
+import { log } from '@graphprotocol/graph-ts'
 
 import { populateEmptyPools } from '../backfill'
 import { PoolCreated } from '../types/Factory/Factory'
@@ -36,15 +36,6 @@ export function handlePoolCreatedHelper(
   if (factory === null) {
     factory = new Factory(factoryAddress)
     factory.poolCount = ZERO_BI
-    factory.totalVolumeETH = ZERO_BD
-    factory.totalVolumeUSD = ZERO_BD
-    factory.untrackedVolumeUSD = ZERO_BD
-    factory.totalFeesUSD = ZERO_BD
-    factory.totalFeesETH = ZERO_BD
-    factory.totalValueLockedETH = ZERO_BD
-    factory.totalValueLockedUSD = ZERO_BD
-    factory.totalValueLockedUSDUntracked = ZERO_BD
-    factory.totalValueLockedETHUntracked = ZERO_BD
     factory.txCount = ZERO_BI
     factory.owner = ADDRESS_ZERO
 
@@ -129,30 +120,14 @@ export function handlePoolCreatedHelper(
 
   pool.token0 = token0.id
   pool.token1 = token1.id
-  pool.feeTier = BigInt.fromI32(event.params.fee)
   pool.createdAtTimestamp = event.block.timestamp
   pool.createdAtBlockNumber = event.block.number
-  pool.liquidityProviderCount = ZERO_BI
-  pool.txCount = ZERO_BI
   pool.liquidity = ZERO_BI
   pool.sqrtPrice = ZERO_BI
   pool.token0Price = ZERO_BD
   pool.token1Price = ZERO_BD
-  pool.observationIndex = ZERO_BI
   pool.totalValueLockedToken0 = ZERO_BD
   pool.totalValueLockedToken1 = ZERO_BD
-  pool.totalValueLockedUSD = ZERO_BD
-  pool.totalValueLockedETH = ZERO_BD
-  pool.totalValueLockedUSDUntracked = ZERO_BD
-  pool.volumeToken0 = ZERO_BD
-  pool.volumeToken1 = ZERO_BD
-  pool.volumeUSD = ZERO_BD
-  pool.feesUSD = ZERO_BD
-  pool.untrackedVolumeUSD = ZERO_BD
-
-  pool.collectedFeesToken0 = ZERO_BD
-  pool.collectedFeesToken1 = ZERO_BD
-  pool.collectedFeesUSD = ZERO_BD
 
   pool.save()
   // create the tracked contract based on the template

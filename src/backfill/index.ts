@@ -1,4 +1,4 @@
-import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts'
+import { Address, ethereum } from '@graphprotocol/graph-ts'
 
 import { ERC20 } from '../types/Factory/ERC20'
 import { Pool as PoolABI } from '../types/Factory/Pool'
@@ -64,26 +64,8 @@ export function populateEmptyPools(
     pool.sqrtPrice = ZERO_BI
     pool.token0Price = ZERO_BD
     pool.token1Price = ZERO_BD
-    pool.observationIndex = ZERO_BI
-    pool.liquidityProviderCount = ZERO_BI
-    pool.txCount = ZERO_BI
     pool.totalValueLockedToken0 = ZERO_BD
     pool.totalValueLockedToken1 = ZERO_BD
-    pool.totalValueLockedETH = ZERO_BD
-    pool.totalValueLockedUSD = ZERO_BD
-    pool.totalValueLockedUSDUntracked = ZERO_BD
-    pool.volumeToken0 = ZERO_BD
-    pool.volumeToken1 = ZERO_BD
-    pool.volumeUSD = ZERO_BD
-    pool.untrackedVolumeUSD = ZERO_BD
-    pool.feesUSD = ZERO_BD
-    pool.collectedFeesToken0 = ZERO_BD
-    pool.collectedFeesToken1 = ZERO_BD
-    pool.collectedFeesUSD = ZERO_BD
-
-    // need fee tier
-    const feeTier = poolContract.fee()
-    pool.feeTier = BigInt.fromI32(feeTier)
 
     // create token entities if needed
     populateToken(token0Address.toHexString(), tokenOverrides)
@@ -108,13 +90,11 @@ export function populateEmptyPools(
       const token0Contract = ERC20.bind(Address.fromString(pool.token0))
       const tvlToken0Raw = token0Contract.balanceOf(Address.fromString(pool.id))
       const tvlToken0Adjusted = convertTokenToDecimal(tvlToken0Raw, token0.decimals)
-      pool.totalValueLockedToken0 = tvlToken0Adjusted
       token0.totalValueLocked = tvlToken0Adjusted
 
       const token1Contract = ERC20.bind(Address.fromString(pool.token1))
       const tvlToken1Raw = token1Contract.balanceOf(Address.fromString(pool.id))
       const tvlToken1Adjusted = convertTokenToDecimal(tvlToken1Raw, token1.decimals)
-      pool.totalValueLockedToken1 = tvlToken1Adjusted
       token1.totalValueLocked = tvlToken1Adjusted
 
       // add pool to tracked address and store entities
