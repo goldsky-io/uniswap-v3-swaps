@@ -68,6 +68,9 @@ export class SubgraphConfig {
 
   // initialize this list of pools and token addresses on factory creation. for new chains this is typically empty.
   poolMappings: Array<Address[]>
+
+  // ignore swaps and transactions before this block number.
+  swapsStartBlock: BigInt
 }
 
 export function getSubgraphConfig(): SubgraphConfig {
@@ -109,6 +112,7 @@ export function getSubgraphConfig(): SubgraphConfig {
       ],
       poolsToSkip: [],
       poolMappings: [],
+      swapsStartBlock: BigInt.zero(),
     }
   } else if (selectedNetwork == AVALANCHE_NETWORK_NAME) {
     return {
@@ -138,6 +142,7 @@ export function getSubgraphConfig(): SubgraphConfig {
       tokenOverrides: [],
       poolsToSkip: [],
       poolMappings: [],
+      swapsStartBlock: BigInt.zero(),
     }
   } else if (selectedNetwork == BASE_NETWORK_NAME) {
     return {
@@ -156,6 +161,7 @@ export function getSubgraphConfig(): SubgraphConfig {
       tokenOverrides: [],
       poolsToSkip: [],
       poolMappings: [],
+      swapsStartBlock: BigInt.zero(),
     }
   } else if (selectedNetwork == BLAST_MAINNET_NETWORK_NAME) {
     return {
@@ -174,6 +180,7 @@ export function getSubgraphConfig(): SubgraphConfig {
       tokenOverrides: [],
       poolsToSkip: [],
       poolMappings: [],
+      swapsStartBlock: BigInt.zero(),
     }
   } else if (selectedNetwork == BSC_NETWORK_NAME) {
     return {
@@ -194,6 +201,7 @@ export function getSubgraphConfig(): SubgraphConfig {
       tokenOverrides: [],
       poolsToSkip: [],
       poolMappings: [],
+      swapsStartBlock: BigInt.zero(),
     }
   } else if (selectedNetwork == CELO_NETWORK_NAME) {
     return {
@@ -222,6 +230,7 @@ export function getSubgraphConfig(): SubgraphConfig {
       tokenOverrides: [],
       poolsToSkip: [],
       poolMappings: [],
+      swapsStartBlock: BigInt.zero(),
     }
   } else if (selectedNetwork == MAINNET_NETWORK_NAME) {
     return {
@@ -300,6 +309,7 @@ export function getSubgraphConfig(): SubgraphConfig {
       ],
       poolsToSkip: ['0x8fe8d9bb8eeba3ed688069c3d6b556c9ca258248'],
       poolMappings: [],
+      swapsStartBlock: BigInt.zero(),
     }
   } else if (selectedNetwork == MATIC_NETWORK_NAME) {
     return {
@@ -321,6 +331,7 @@ export function getSubgraphConfig(): SubgraphConfig {
       tokenOverrides: [],
       poolsToSkip: [],
       poolMappings: [],
+      swapsStartBlock: BigInt.zero(),
     }
   } else if (selectedNetwork == OPTIMISM_NETWORK_NAME) {
     return {
@@ -359,6 +370,7 @@ export function getSubgraphConfig(): SubgraphConfig {
         '0x1ffd370f9d01f75de2cc701956886acec9749e80',
       ],
       poolMappings: OPTIMISM_POOL_MAPPINGS,
+      swapsStartBlock: BigInt.zero(),
     }
   } else if (selectedNetwork == ZKSYNC_ERA_NETWORK_NAME) {
     return {
@@ -389,6 +401,7 @@ export function getSubgraphConfig(): SubgraphConfig {
       ],
       poolsToSkip: [],
       poolMappings: [],
+      swapsStartBlock: BigInt.zero(),
     }
   } else {
     throw new Error('Unsupported Network')
