@@ -24,6 +24,7 @@ export function handleSwapHelper(event: SwapEvent, subgraphConfig: SubgraphConfi
   const stablecoinAddresses = subgraphConfig.stablecoinAddresses
   const minimumNativeLocked = subgraphConfig.minimumNativeLocked
   const whitelistTokens = subgraphConfig.whitelistTokens
+  const swapsStartBlock = subgraphConfig.swapsStartBlock
 
   const bundle = Bundle.load('1')!
   const factory = Factory.load(factoryAddress)!
@@ -80,7 +81,7 @@ export function handleSwapHelper(event: SwapEvent, subgraphConfig: SubgraphConfi
     const prices = sqrtPriceX96ToTokenPrices(pool.sqrtPrice, token0 as Token, token1 as Token)
     pool.token0Price = prices[0]
     pool.token1Price = prices[1]
-    pool.save()
+    // pool.save()
 
     // update USD pricing
     bundle.ethPriceUSD = getNativePriceInUSD(stablecoinWrappedNativePoolAddress, stablecoinIsToken0)
@@ -101,25 +102,27 @@ export function handleSwapHelper(event: SwapEvent, subgraphConfig: SubgraphConfi
     token0.totalValueLockedUSD = token0.totalValueLocked.times(token0.derivedETH).times(bundle.ethPriceUSD)
     token1.totalValueLockedUSD = token1.totalValueLocked.times(token1.derivedETH).times(bundle.ethPriceUSD)
 
-    // create Swap event
-    const transaction = loadTransaction(event)
-    const swap = new Swap(transaction.id + '-' + event.logIndex.toString())
-    swap.transaction = transaction.id
-    swap.timestamp = transaction.timestamp
-    swap.pool = pool.id
-    swap.token0 = pool.token0
-    swap.token1 = pool.token1
-    swap.sender = event.params.sender
-    swap.origin = event.transaction.from
-    swap.recipient = event.params.recipient
-    swap.amount0 = amount0
-    swap.amount1 = amount1
-    swap.amountUSD = amountTotalUSDTracked
-    swap.tick = BigInt.fromI32(event.params.tick as i32)
-    swap.sqrtPriceX96 = event.params.sqrtPriceX96
-    swap.logIndex = event.logIndex
+    if (event.block.number.ge(swapsStartBlock)) {
+      // create Swap event
+      const transaction = loadTransaction(event)
+      const swap = new Swap(transaction.id + '-' + event.logIndex.toString())
+      swap.transaction = transaction.id
+      swap.timestamp = transaction.timestamp
+      swap.pool = pool.id
+      swap.token0 = pool.token0
+      swap.token1 = pool.token1
+      swap.sender = event.params.sender
+      swap.origin = event.transaction.from
+      swap.recipient = event.params.recipient
+      swap.amount0 = amount0
+      swap.amount1 = amount1
+      swap.amountUSD = amountTotalUSDTracked
+      swap.tick = BigInt.fromI32(event.params.tick as i32)
+      swap.sqrtPriceX96 = event.params.sqrtPriceX96
+      swap.logIndex = event.logIndex
+      swap.save()
+    }
 
-    swap.save()
     factory.save()
     pool.save()
     token0.save()
