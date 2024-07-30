@@ -65,15 +65,6 @@ export function handlePoolCreatedHelper(
 
     token0.decimals = decimals
     token0.derivedETH = ZERO_BD
-    token0.volume = ZERO_BD
-    token0.volumeUSD = ZERO_BD
-    token0.feesUSD = ZERO_BD
-    token0.untrackedVolumeUSD = ZERO_BD
-    token0.totalValueLocked = ZERO_BD
-    token0.totalValueLockedUSD = ZERO_BD
-    token0.totalValueLockedUSDUntracked = ZERO_BD
-    token0.txCount = ZERO_BI
-    token0.poolCount = ZERO_BI
     token0.whitelistPools = []
   }
 
@@ -90,15 +81,6 @@ export function handlePoolCreatedHelper(
     }
     token1.decimals = decimals
     token1.derivedETH = ZERO_BD
-    token1.volume = ZERO_BD
-    token1.volumeUSD = ZERO_BD
-    token1.untrackedVolumeUSD = ZERO_BD
-    token1.feesUSD = ZERO_BD
-    token1.totalValueLocked = ZERO_BD
-    token1.totalValueLockedUSD = ZERO_BD
-    token1.totalValueLockedUSDUntracked = ZERO_BD
-    token1.txCount = ZERO_BI
-    token1.poolCount = ZERO_BI
     token1.whitelistPools = []
   }
 

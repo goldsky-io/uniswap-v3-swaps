@@ -24,24 +24,6 @@ type Token @entity {
   decimals: BigInt!
   # token total supply
   totalSupply: BigInt!
-  # volume in token units
-  volume: BigDecimal!
-  # volume in derived USD
-  volumeUSD: BigDecimal!
-  # volume in USD even on pools with less reliable USD values
-  untrackedVolumeUSD: BigDecimal!
-  # fees in USD
-  feesUSD: BigDecimal!
-  # transactions across all pools that include this token
-  txCount: BigInt!
-  # number of pools containing this token
-  poolCount: BigInt!
-  # liquidity across all pools in token units
-  totalValueLocked: BigDecimal!
-  # liquidity across all pools in derived USD
-  totalValueLockedUSD: BigDecimal!
-  # TVL derived in USD untracked
-  totalValueLockedUSDUntracked: BigDecimal!
   # Note: for chains where ETH is not the native token, this will be the derived
   # price of that chain's native token, effectively, this should be renamed
   # derivedNative

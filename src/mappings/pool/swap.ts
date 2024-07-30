@@ -4,7 +4,7 @@ import { Bundle, Pool, Swap, Token } from '../../types/schema'
 import { Swap as SwapEvent } from '../../types/templates/Pool/Pool'
 import { convertTokenToDecimal, loadTransaction } from '../../utils'
 import { getSubgraphConfig, SubgraphConfig } from '../../utils/chains'
-import { ONE_BI, ZERO_BD } from '../../utils/constants'
+import { ZERO_BD } from '../../utils/constants'
 import {
   findNativePerToken,
   getNativePriceInUSD,
@@ -17,13 +17,17 @@ export function handleSwap(event: SwapEvent): void {
 }
 
 export function handleSwapHelper(event: SwapEvent, subgraphConfig: SubgraphConfig = getSubgraphConfig()): void {
+  const swapsStartBlock = subgraphConfig.swapsStartBlock
+  if (event.block.number.lt(swapsStartBlock)) {
+    return
+  }
+
   const stablecoinWrappedNativePoolAddress = subgraphConfig.stablecoinWrappedNativePoolAddress
   const stablecoinIsToken0 = subgraphConfig.stablecoinIsToken0
   const wrappedNativeAddress = subgraphConfig.wrappedNativeAddress
   const stablecoinAddresses = subgraphConfig.stablecoinAddresses
   const minimumNativeLocked = subgraphConfig.minimumNativeLocked
   const whitelistTokens = subgraphConfig.whitelistTokens
-  const swapsStartBlock = subgraphConfig.swapsStartBlock
 
   const bundle = Bundle.load('1')!
   const pool = Pool.load(event.address.toHexString())!
@@ -60,23 +64,11 @@ export function handleSwapHelper(event: SwapEvent, subgraphConfig: SubgraphConfi
       whitelistTokens,
     ).div(BigDecimal.fromString('2'))
 
-    // update token0 data
-    token0.volume = token0.volume.plus(amount0Abs)
-    token0.totalValueLocked = token0.totalValueLocked.plus(amount0)
-    token0.volumeUSD = token0.volumeUSD.plus(amountTotalUSDTracked)
-    token0.txCount = token0.txCount.plus(ONE_BI)
-
-    // update token1 data
-    token1.volume = token1.volume.plus(amount1Abs)
-    token1.totalValueLocked = token1.totalValueLocked.plus(amount1)
-    token1.volumeUSD = token1.volumeUSD.plus(amountTotalUSDTracked)
-    token1.txCount = token1.txCount.plus(ONE_BI)
-
     // updated pool ratess
     const prices = sqrtPriceX96ToTokenPrices(pool.sqrtPrice, token0 as Token, token1 as Token)
     pool.token0Price = prices[0]
     pool.token1Price = prices[1]
-    // pool.save()
+    pool.save()
 
     // update USD pricing
     bundle.ethPriceUSD = getNativePriceInUSD(stablecoinWrappedNativePoolAddress, stablecoinIsToken0)
@@ -93,33 +85,26 @@ export function handleSwapHelper(event: SwapEvent, subgraphConfig: SubgraphConfi
       stablecoinAddresses,
       minimumNativeLocked,
     )
-
-    token0.totalValueLockedUSD = token0.totalValueLocked.times(token0.derivedETH).times(bundle.ethPriceUSD)
-    token1.totalValueLockedUSD = token1.totalValueLocked.times(token1.derivedETH).times(bundle.ethPriceUSD)
-
-    if (event.block.number.ge(swapsStartBlock)) {
-      // create Swap event
-      const transaction = loadTransaction(event)
-      const swap = new Swap(transaction.id + '-' + event.logIndex.toString())
-      swap.transaction = transaction.id
-      swap.timestamp = transaction.timestamp
-      swap.pool = pool.id
-      swap.token0 = pool.token0
-      swap.token1 = pool.token1
-      swap.sender = event.params.sender
-      swap.origin = event.transaction.from
-      swap.recipient = event.params.recipient
-      swap.amount0 = amount0
-      swap.amount1 = amount1
-      swap.amountUSD = amountTotalUSDTracked
-      swap.tick = BigInt.fromI32(event.params.tick as i32)
-      swap.sqrtPriceX96 = event.params.sqrtPriceX96
-      swap.logIndex = event.logIndex
-      swap.save()
-    }
-
-    pool.save()
     token0.save()
     token1.save()
+
+    // create Swap event
+    const transaction = loadTransaction(event)
+    const swap = new Swap(transaction.id + '-' + event.logIndex.toString())
+    swap.transaction = transaction.id
+    swap.timestamp = transaction.timestamp
+    swap.pool = pool.id
+    swap.token0 = pool.token0
+    swap.token1 = pool.token1
+    swap.sender = event.params.sender
+    swap.origin = event.transaction.from
+    swap.recipient = event.params.recipient
+    swap.amount0 = amount0
+    swap.amount1 = amount1
+    swap.amountUSD = amountTotalUSDTracked
+    swap.tick = BigInt.fromI32(event.params.tick as i32)
+    swap.sqrtPriceX96 = event.params.sqrtPriceX96
+    swap.logIndex = event.logIndex
+    swap.save()
   }
 }
