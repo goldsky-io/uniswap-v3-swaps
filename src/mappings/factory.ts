@@ -7,7 +7,7 @@ import { Bundle, Pool, Token } from '../types/schema'
 import { Pool as PoolTemplate } from '../types/templates'
 import { getSubgraphConfig, SubgraphConfig } from '../utils/chains'
 import { fetchTokenDecimals, fetchTokenName, fetchTokenSymbol, fetchTokenTotalSupply } from '../utils/token'
-import { ADDRESS_ZERO, ONE_BI, ZERO_BD, ZERO_BI } from './../utils/constants'
+import { ADDRESS_ZERO, ZERO_BD, ZERO_BI } from './../utils/constants'
 
 // The subgraph handler must have this signature to be able to handle events,
 // however, we invoke a helper in order to inject dependencies for unit tests.
@@ -35,8 +35,6 @@ export function handlePoolCreatedHelper(
   let factory = Factory.load(factoryAddress)
   if (factory === null) {
     factory = new Factory(factoryAddress)
-    factory.poolCount = ZERO_BI
-    factory.txCount = ZERO_BI
     factory.owner = ADDRESS_ZERO
 
     // create new bundle for tracking eth price
@@ -46,8 +44,6 @@ export function handlePoolCreatedHelper(
 
     populateEmptyPools(event, poolMappings, whitelistTokens, tokenOverrides)
   }
-
-  factory.poolCount = factory.poolCount.plus(ONE_BI)
 
   const pool = new Pool(event.params.pool.toHexString()) as Pool
   let token0 = Token.load(event.params.token0.toHexString())

@@ -1,6 +1,6 @@
 import { BigDecimal, BigInt } from '@graphprotocol/graph-ts'
 
-import { Bundle, Factory, Pool, Swap, Token } from '../../types/schema'
+import { Bundle, Pool, Swap, Token } from '../../types/schema'
 import { Swap as SwapEvent } from '../../types/templates/Pool/Pool'
 import { convertTokenToDecimal, loadTransaction } from '../../utils'
 import { getSubgraphConfig, SubgraphConfig } from '../../utils/chains'
@@ -17,7 +17,6 @@ export function handleSwap(event: SwapEvent): void {
 }
 
 export function handleSwapHelper(event: SwapEvent, subgraphConfig: SubgraphConfig = getSubgraphConfig()): void {
-  const factoryAddress = subgraphConfig.factoryAddress
   const stablecoinWrappedNativePoolAddress = subgraphConfig.stablecoinWrappedNativePoolAddress
   const stablecoinIsToken0 = subgraphConfig.stablecoinIsToken0
   const wrappedNativeAddress = subgraphConfig.wrappedNativeAddress
@@ -27,7 +26,6 @@ export function handleSwapHelper(event: SwapEvent, subgraphConfig: SubgraphConfi
   const swapsStartBlock = subgraphConfig.swapsStartBlock
 
   const bundle = Bundle.load('1')!
-  const factory = Factory.load(factoryAddress)!
   const pool = Pool.load(event.address.toHexString())!
 
   // hot fix for bad pricing
@@ -61,9 +59,6 @@ export function handleSwapHelper(event: SwapEvent, subgraphConfig: SubgraphConfi
       token1 as Token,
       whitelistTokens,
     ).div(BigDecimal.fromString('2'))
-
-    // global updates
-    factory.txCount = factory.txCount.plus(ONE_BI)
 
     // update token0 data
     token0.volume = token0.volume.plus(amount0Abs)
@@ -123,7 +118,6 @@ export function handleSwapHelper(event: SwapEvent, subgraphConfig: SubgraphConfi
       swap.save()
     }
 
-    factory.save()
     pool.save()
     token0.save()
     token1.save()

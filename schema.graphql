@@ -1,10 +1,6 @@
 type Factory @entity {
   # factory address
   id: ID!
-  # amount of pools created
-  poolCount: BigInt!
-  # amoutn of transactions all time
-  txCount: BigInt!
 
   # current owner of the factory
   owner: ID!
